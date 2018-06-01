@@ -223,11 +223,11 @@ def getkvs():
     return Logger.CURRENT.name2val
 
 
-def log(*args, level=INFO):
+def log(arg, level=INFO):
     """
     Write the sequence of args, with no separators, to the console and output files (if you've configured an output file).
     """
-    Logger.CURRENT.log(*args, level=level)
+    Logger.CURRENT.log(arg, level=level)
 
 def debug(*args):
     log(*args, level=DEBUG)
@@ -322,7 +322,7 @@ class Logger(object):
         self.name2val.clear()
         self.name2cnt.clear()
 
-    def log(self, *args, level=INFO):
+    def log(self, arg, level=INFO):
         if self.level <= level:
             self._do_log(args)
 

@@ -1,8 +1,12 @@
 import numpy as np
-from abc import ABC, abstractmethod
+from future.utils import with_metaclass
+from abc import ABCMeta, abstractmethod
+from baselines.common import raise_if_none
 
-class AbstractEnvRunner(ABC):
-    def __init__(self, *, env, model, nsteps):
+
+class AbstractEnvRunner(with_metaclass(ABCMeta)):
+    def __init__(self, _named_only=object(), env=None, model=None, nsteps=None):
+        raise_if_none(env=env, model=model, nsteps=nsteps)
         self.env = env
         self.model = model
         nenv = env.num_envs

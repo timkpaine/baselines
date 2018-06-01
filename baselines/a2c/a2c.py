@@ -85,7 +85,7 @@ class Model(object):
 class Runner(AbstractEnvRunner):
 
     def __init__(self, env, model, nsteps=5, gamma=0.99):
-        super().__init__(env=env, model=model, nsteps=nsteps)
+        super(Runner, self).__init__(env=env, model=model, nsteps=nsteps)
         self.gamma = gamma
 
     def run(self):

@@ -8,10 +8,13 @@ from baselines import logger
 from collections import deque
 from baselines.common import explained_variance
 from baselines.common.runners import AbstractEnvRunner
+from baselines.common import raise_if_none
+
 
 class Model(object):
-    def __init__(self, *, policy, ob_space, ac_space, nbatch_act, nbatch_train,
-                nsteps, ent_coef, vf_coef, max_grad_norm):
+    def __init__(self, _named_only=object(), policy=None, ob_space=None, ac_space=None, nbatch_act=None, nbatch_train=None,
+                nsteps=None, ent_coef=None, vf_coef=None, max_grad_norm=None):
+        raise_if_none(policy=policy, ob_space=ob_space, ac_space=ac_space, nbatch_act=nbatch_act, nbatch_train=nbatch_train,nsteps=nsteps, ent_coef=ent_coef, vf_coef=vf_coef, max_grad_norm=max_grad_norm)
         sess = tf.get_default_session()
 
         act_model = policy(sess, ob_space, ac_space, nbatch_act, 1, reuse=False)
@@ -87,8 +90,9 @@ class Model(object):
 
 class Runner(AbstractEnvRunner):
 
-    def __init__(self, *, env, model, nsteps, gamma, lam):
-        super().__init__(env=env, model=model, nsteps=nsteps)
+    def __init__(self, _named_only=object(), env=None, model=None, nsteps=None, gamma=None, lam=None):
+        raise_if_none(env=env, model=model, nsteps=nsteps, gamma=gamma, lam=lam)
+        super(Runner, self).__init__(env=env, model=model, nsteps=nsteps)
         self.lam = lam
         self.gamma = gamma
 
@@ -130,8 +134,9 @@ class Runner(AbstractEnvRunner):
             delta = mb_rewards[t] + self.gamma * nextvalues * nextnonterminal - mb_values[t]
             mb_advs[t] = lastgaelam = delta + self.gamma * self.lam * nextnonterminal * lastgaelam
         mb_returns = mb_advs + mb_values
-        return (*map(sf01, (mb_obs, mb_returns, mb_dones, mb_actions, mb_values, mb_neglogpacs)),
-            mb_states, epinfos)
+        m1, m2, m3, m4, m5, m6 = tuple(map(sf01, (mb_obs, mb_returns, mb_dones, mb_actions, mb_values, mb_neglogpacs)))
+        return (m1, m2, m3, m4, m5, m6, mb_states, epinfos)
+
 # obs, returns, masks, actions, values, neglogpacs, states = runner.run()
 def sf01(arr):
     """
@@ -145,11 +150,11 @@ def constfn(val):
         return val
     return f
 
-def learn(*, policy, env, nsteps, total_timesteps, ent_coef, lr,
+def learn(_named_only=object(), policy=None, env=None, nsteps=None, total_timesteps=None, ent_coef=None, lr=None,
             vf_coef=0.5,  max_grad_norm=0.5, gamma=0.99, lam=0.95,
             log_interval=10, nminibatches=4, noptepochs=4, cliprange=0.2,
             save_interval=0, load_path=None):
-
+    raise_if_none(policy=policy, env=env, nsteps=nsteps, total_timestep=total_timesteps, ent_coef=ent_coef, lr=lr)
     if isinstance(lr, float): lr = constfn(lr)
     else: assert callable(lr)
     if isinstance(cliprange, float): cliprange = constfn(cliprange)
@@ -211,7 +216,7 @@ def learn(*, policy, env, nsteps, total_timesteps, ent_coef, lr,
                     mbflatinds = flatinds[mbenvinds].ravel()
                     slices = (arr[mbflatinds] for arr in (obs, returns, masks, actions, values, neglogpacs))
                     mbstates = states[mbenvinds]
-                    mblossvals.append(model.train(lrnow, cliprangenow, *slices, mbstates))
+                    mblossvals.append(model.train(lrnow, cliprangenow, *slices, mbstates=mbstates))
 
         lossvals = np.mean(mblossvals, axis=0)
         tnow = time.time()

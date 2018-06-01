@@ -5,6 +5,13 @@ import pickle
 import random
 import tempfile
 import zipfile
+from six import iteritems
+
+
+def raise_if_none(**kwargs):
+    for k, v in iteritems(kwargs):
+        if v is None:
+            raise Exception('Must provide arguments for: %s' % str(list(kwargs.keys())))
 
 
 def zipsame(*seqs):

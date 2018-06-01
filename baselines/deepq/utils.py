@@ -29,7 +29,7 @@ class TfInput(object):
 class PlaceholderTfInput(TfInput):
     def __init__(self, placeholder):
         """Wrapper for regular tensorflow placeholder."""
-        super().__init__(placeholder.name)
+        super(PlaceholderTfInput, self).__init__(placeholder.name)
         self._placeholder = placeholder
 
     def get(self):
@@ -54,7 +54,7 @@ class Uint8Input(PlaceholderTfInput):
             name of the underlying placeholder
         """
 
-        super().__init__(tf.placeholder(tf.uint8, [None] + list(shape), name=name))
+        super(Uint8Input, self).__init__(tf.placeholder(tf.uint8, [None] + list(shape), name=name))
         self._shape = shape
         self._output = tf.cast(super().get(), tf.float32) / 255.0
 
@@ -75,7 +75,7 @@ class ObservationInput(PlaceholderTfInput):
                 tensorflow name of the underlying placeholder
         """
         inpt, self.processed_inpt = observation_input(observation_space, name=name)
-        super().__init__(inpt)
+        super(ObservationInput, self).__init__(inpt)
 
     def get(self):
         return self.processed_inpt

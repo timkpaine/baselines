@@ -1,5 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
+from future.utils import with_metaclass
 from baselines import logger
+
 
 class AlreadySteppingError(Exception):
     """
@@ -19,7 +21,7 @@ class NotSteppingError(Exception):
         msg = 'not running an async step'
         Exception.__init__(self, msg)
 
-class VecEnv(ABC):
+class VecEnv(with_metaclass(ABCMeta)):
     """
     An abstract asynchronous, vectorized environment.
     """

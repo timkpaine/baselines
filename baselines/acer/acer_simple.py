@@ -214,7 +214,7 @@ class Model(object):
 
 class Runner(AbstractEnvRunner):
     def __init__(self, env, model, nsteps, nstack):
-        super().__init__(env=env, model=model, nsteps=nsteps)
+        super(Runner, self).__init__(env=env, model=model, nsteps=nsteps)
         self.nstack = nstack
         nh, nw, nc = env.observation_space.shape
         self.nc = nc  # nc = 1 for atari, but just in case

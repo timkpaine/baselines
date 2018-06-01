@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 from gym import spaces
 from collections import deque
+from baselines.common import raise_if_none
 
 def sample(logits):
     noise = tf.random_uniform(tf.shape(logits))
@@ -39,7 +40,10 @@ def ortho_init(scale=1.0):
         return (scale * q[:shape[0], :shape[1]]).astype(np.float32)
     return _ortho_init
 
-def conv(x, scope, *, nf, rf, stride, pad='VALID', init_scale=1.0, data_format='NHWC', one_dim_bias=False):
+def conv(x, scope, _named_only=object(), nf=None, rf=None, stride=None, pad='VALID', init_scale=1.0, data_format='NHWC', one_dim_bias=False):
+    raise_if_none(nf=nf, rf=rf, stride=stride)
+    if nf is None or rf is None or stride is None:
+        raise Exception('Must provide arguments nf, rf, and stride')
     if data_format == 'NHWC':
         channel_ax = 3
         strides = [1, stride, stride, 1]
@@ -60,7 +64,7 @@ def conv(x, scope, *, nf, rf, stride, pad='VALID', init_scale=1.0, data_format='
             b = tf.reshape(b, bshape)
         return b + tf.nn.conv2d(x, w, strides=strides, padding=pad, data_format=data_format)
 
-def fc(x, scope, nh, *, init_scale=1.0, init_bias=0.0):
+def fc(x, scope, nh, _named_only=object(), init_scale=1.0, init_bias=0.0):
     with tf.variable_scope(scope):
         nin = x.get_shape()[1].value
         w = tf.get_variable("w", [nin, nh], initializer=ortho_init(init_scale))
