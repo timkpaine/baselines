@@ -323,7 +323,7 @@ class Logger(object):
 
     def log(self, arg, level=INFO):
         if self.level <= level:
-            self._do_log(args)
+            self._do_log(arg)
 
     # Configuration
     # ----------------------------------------
