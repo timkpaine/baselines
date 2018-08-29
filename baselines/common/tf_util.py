@@ -318,7 +318,8 @@ def load_state(fname, sess=None):
 
 def save_state(fname, sess=None):
     sess = sess or get_session()
-    os.makedirs(os.path.dirname(fname), exist_ok=True)
+    if not os.path.exists(os.path.dirname(fname)):
+        os.makedirs(os.path.dirname(fname))
     saver = tf.train.Saver()
     saver.save(tf.get_default_session(), fname)
 
